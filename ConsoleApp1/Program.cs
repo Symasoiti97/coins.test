@@ -10,27 +10,24 @@ internal static class Program
         Console.Write("Введите сумму: ");
         var sum = Convert.ToInt32(Console.ReadLine());
 
-        var numbers = new List<int>();
+        var limitNominal = new Dictionary<int, int>();
         foreach (var row in await File.ReadAllLinesAsync("Money.txt"))
         {
             var rowNumbers = row.Split(" - ").Select(int.Parse).ToArray();
-            for (var i = 0; i < rowNumbers[1]; i++)
-            {
-                numbers.Add(rowNumbers[0]);
-            }
+            limitNominal[rowNumbers.First()] = rowNumbers.Last();
         }
 
-        var isExits = false;
-        foreach (var combination in CreateCombinations(0, new List<int>(), numbers))
+        var availableNominal = limitNominal.Keys.ToArray();
+        var actualNominal = Calculator.Calc(sum, availableNominal, limitNominal);
+
+        if (actualNominal?.Any() == true)
         {
-            if (sum == combination.Sum())
+            foreach (var (key, value) in actualNominal)
             {
-                isExits = true;
-                Console.WriteLine(string.Join(", ", combination));
+                Console.WriteLine($"Nominal: {key}; Count: {value}");
             }
         }
-
-        if (isExits == false)
+        else
         {
             Console.WriteLine("Не найдено");
         }
